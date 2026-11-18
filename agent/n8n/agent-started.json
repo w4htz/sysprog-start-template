@@ -1,0 +1,131 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6be2fa63-149b-494e-9a2a-692b77aa8781",
+      "name": "Webhook",
+      "webhookId": "eb685000-50cd-45f7-be20-c80679dac4df"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Объясни по-русски в двух предложениях сообщение системного агента:\n{{ JSON.stringify($json.body) }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        0
+      ],
+      "id": "361cb8a5-a162-4c88-a500-53917539e9dc",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        160,
+        208
+      ],
+      "id": "221b4f91-0ea5-4496-9d4b-936447ef6ee1",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "MeJjcgNgvRMZ9uzw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "atsgth@gmail.com",
+        "toEmail": "atsgth@gmail.com",
+        "subject": "=Агент запущен: {{ $('Webhook').item.json.body.host }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}\n\nДанные: {{ JSON.stringify($('Webhook').item.json.body) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "799095fa-3ae6-4e1d-9e51-c58c8b40a5e8",
+      "name": "Send an Email",
+      "webhookId": "82105879-a33b-490f-93e7-9c9e68fa926b",
+      "credentials": {
+        "smtp": {
+          "id": "UWY0808jA9LX8BGB",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1d7d42a9-4034-4f20-8461-a510372d6dd8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bdac56f602e5d30da37eb88d5470554d0dd0d7f48fd3fdace957c68dc73990d8"
+  },
+  "nodeGroups": [],
+  "id": "FrTHjbghK2cfJa6S",
+  "tags": []
+}
